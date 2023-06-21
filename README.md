@@ -1,56 +1,18 @@
-# Windows
-## listar
-```
-\l
-```
-
-## acceder a una base de datos 
-
-```
-\c transporte_masivo
-```
+# windows usando pgadmin
 
 
-##cear tabla con query
+## crear conexion 
 
-```
-CREATE TABLE usuarios (
-    id serial PRIMARY KEY,
-    nombre text
-);
+create,server
 
-```
-
-## ver las tablas dentro de esta 
-```
-\dt
-```
-
-## ver todas las funciones que pdemos ejecutar
-```
-\h
-```
-
-## consultar una de las funciones del listado
-```
-\h ALTER
-# salir contrl c
-```
+general
+Name poner nombre
 
 
-## consultar version postgres
-```
-SELECT version();
-```
+Connection
+Host name/address   poner  127.0.0.1 o poner  localhost
 
-## volver a ejecutar el ultimo comando , si otro usuario uso funcion desde otra parte sirve para ver lo que ejecuto
-```
-\g
-```
+puerto 5432
 
-## que nos diga en cuanto tiempo demora en ejecuta
 
-```
-\timing
-``
 
