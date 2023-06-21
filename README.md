@@ -1,86 +1,56 @@
+# Windows
+## listar
+```
+\l
+```
 
-entorno conda pycharm 
+## acceder a una base de datos 
 
-```commandline
-
-sudo apt update
-sudo apt install postgresql
-
-sudo snap install curl
-sudo apt install curl
-
-curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub -o packages-pgadmin-org.pub
-
-
+```
+\c transporte_masivo
 ```
 
 
-Instalar la clave pública del repositorio:
-
-
-```commandline
-sudo gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg packages-pgadmin-org.pub
+##cear tabla con query
 
 ```
-Crear el archivo de configuración del repositorio:
-
-```commandline
-
-echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" | sudo tee /etc/apt/sources.list.d/pgadmin4.list
+CREATE TABLE usuarios (
+    id serial PRIMARY KEY,
+    nombre text
+);
 
 ```
 
-Actualizar la lista de paquetes:
+## ver las tablas dentro de esta 
+```
+\dt
+```
 
-```commandline
+## ver todas las funciones que pdemos ejecutar
+```
+\h
+```
 
-sudo apt update
-
+## consultar una de las funciones del listado
+```
+\h ALTER
+# salir contrl c
 ```
 
 
-Instalar pgAdmin (puedes elegir entre el modo de escritorio o el modo web):
-
-Para instalar en ambos modos:
-
-
-```commandline
-
-sudo apt install pgadmin4
-
+## consultar version postgres
+```
+SELECT version();
 ```
 
-Para instalar solo en el modo de escritorio:
-
-
-```commandline
-sudo apt install pgadmin4-desktop
-
-
+## volver a ejecutar el ultimo comando , si otro usuario uso funcion desde otra parte sirve para ver lo que ejecuto
+```
+\g
 ```
 
-
-Para instalar solo en el modo web:
-
-
-```commandline
-
-sudo apt install pgadmin4-web
+## que nos diga en cuanto tiempo demora en ejecuta
 
 ```
-Configurar el servidor web (solo si has instalado pgAdmin en el modo web):
+\timing
+``
 
-
-```commandline
-
-sudo /usr/pgadmin4/bin/setup-web.sh
-
-```
-
-
-iniciar Pgadmin 
-
-```commandline
-/usr/pgadmin4/bin/pgadmin4
-
-```
