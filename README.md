@@ -1,26 +1,4 @@
-# Tipos de datos
+# Diseñando nuestra base de datos: estructura de las tablas
+## Curso de PostgreSQL
 
-* Numericos
-
-* Monetarios
-
-* Texto
-
-* Binarios
-
-* Fecha/hora
-
-* Boolean 
-
-## tipos de datos propios de postgres
-
-* Geometricos
-
-* direccion de red
-
-* Texto tipo bit
-
-* XML,JSON
-
-* Arreglos 
-
+[Mis clases Platzi OneNote](https://udlaedu-my.sharepoint.com/:o:/g/personal/jho_castano_udla_edu_co/EhSghH-c5QNDp3tqirH82kYBXWhthm6-zOFinONDGSHuxA?e=xLf9x9)
