@@ -1,29 +1,26 @@
-# Presentacion del proyecto 
-## Reto
+# Tipos de datos
 
+* Numericos
 
-Imaginate un sistema de transporte masivo
-un tren una estacion , muchos pasajeros
+* Monetarios
 
-piensa en la cantidad enorme de personas que mueve
+* Texto
 
-los trenes 
+* Binarios
 
+* Fecha/hora
 
-## postgres es una entidad modelo relacional perfecta para esto
+* Boolean 
 
-* Pasajero 
+## tipos de datos propios de postgres
 
-* Trayecto
+* Geometricos
 
-* Estación
+* direccion de red
 
-* Tren
+* Texto tipo bit
 
-* Viaje 
+* XML,JSON
 
-
-un tren que va desde la estación a a la estacion b normalmente tiene ruta 31 que es un trayecto y no siempre hay pasajeros 
-
-entonces la relacion entre los pasajeros y los trayectos se llama viaje
+* Arreglos 
 
