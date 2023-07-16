@@ -1,109 +1,107 @@
+# Particiones
 
-# Creación de Tablas
+* Separación fisica de datos
 
-CREATE 
+* Estructura lógica
 
-ALTER 
-
-DROP 
-
-
-## CREAR pg ADMIN
+## vamos a crear una tabla , agregarle particiones 
 
 
-click derecho  en database
 
-create , database
-
-damos nombre y dejamos todo 
-
-podemos ver en sql la sentencia
+creamos tabla bitacora_vaije         
 
 
-vamos a schemas luego a public y a  tables
+[Mis clases Platzi OneNote]( https://udlaedu-my.sharepoint.com/:o:/g/personal/jho_castano_udla_edu_co/EhSghH-c5QNDp3tqirH82kYB2h-zv3H2ySw2iAr3fB465A?e=9muHky)
 
-creamos la tabla pasajeros 
-y en columns  agregamos las columnas definidas 
+### en la pestaña general
 
-### columns
+activamos que es una tabla particionable 
+### en pesttaña partition
 
+agregamos fila 
 
-id serial   y activamos el primary key 
+el key type le decimos por Column
 
-
-nombre  character varying 
-
-direccion_residencia character varying  
-
-fecha_nacimiento  date 
+Colmn seleccionamos fecha
 
 
-### constraints
-
-aqui creamos la llave primaria 
-
-vamos a primary key 
-
-Name           columns
-
-pasajero_pkey    id 
+esto quiere decir que vamos a crear varias tablas pequeñas que contienen diferentes rangos de fecha para guardar la informacion 
 
 
-el sql de todo esto es
+```sql
 
-``` sql
 
-CREATE TABLE public."pasajeros "
+
+CREATE TABLE public.bitacora_viaje
 (
     id serial,
-    nombre character varying,
-    "direccion _residencia" character varying,
-    fecha_nacimiento date,
-    PRIMARY KEY (id)
-);
+    id_viaje integer,
+    fecha date
+) PARTITION BY RANGE (fecha);
 
-ALTER TABLE IF EXISTS public."pasajeros "
+ALTER TABLE IF EXISTS public.bitacora_viaje
     OWNER to postgres;
 
-```
+
+```  
 
 
-ahora vamos a hacer el script de insercion 
+ahora creada si queremos hacer una insercion no se puede porque no existe una particion donde guardar
 
-
-encima de la  tabla pasajeros click derecho , scripts  , INSERT script 
-
-salio el codigo 
+vamos a hacer la consulta de insertar con script insert 
 
 ```sql
-INSERT INTO public."pasajeros "(
-	id, nombre, "direccion _residencia", fecha_nacimiento)
-	VALUES (?, ?, ?, ?);
+
+INSERT INTO public.bitacora_viaje(
+	id_viaje, fecha)
+	VALUES (1, '2010-01-01');
+
+
+ERROR:  La llave de particionamiento de la fila que falla contiene (fecha) = (2010-01-01).no se encontró una partición de «bitacora_viaje» para el registro 
+
+ERROR:  no se encontró una partición de «bitacora_viaje» para el registro
+SQL state: 23514
+Detail: La llave de particionamiento de la fila que falla contiene (fecha) = (2010-01-01).
 
 ```
 
-como id es un campo que se va ir actualizando con cada insert lo borramos
 
-```sql
-INSERT INTO public."pasajeros "(
-	 nombre, "direccion _residencia", fecha_nacimiento)
-	VALUES (?, ?, ?, ?);
-
-```
-
-en VALUES  reemplazamos los ? por los valores 
+## vamos a crear la particion de la tabla bitacora 
 
 
 ```sql
-INSERT INTO public."pasajeros "(
-	 nombre, "direccion _residencia", fecha_nacimiento)
-	VALUES ('Primer Pasajero', 'Direccion x', '"2023-07-04"');
+
+
+CREATE TABLE bitacora_viaje_2010_01 PARTITION OF bitacora_viaje
+FOR VALUES FROM ('2010-01-01') TO ('2010-01-31');
+
 
 ```
 
-consulta sencilla para consultar fecha
+intentamos hacer la insercion 
+
 
 ```sql
-SELECT current_date;
+
+INSERT INTO public.bitacora_viaje(
+	id_viaje, fecha)
+	VALUES (1, '2010-01-10');
+
+
+INSERT 0 1
+
+Query returned successfully in 36 msec.
+
 
 ```
+## consultamos 
+
+```sql
+
+SELECT *FROM bitacora_viaje;
+
+
+```
+
+vamos a borrar esta tabla particionada bitacora_viaje
+
