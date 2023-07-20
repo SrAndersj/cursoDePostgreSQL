@@ -1,104 +1,86 @@
-# ROLES 
+# Llaves foraneas
 
-## que puede hacer un ROL
+##  estructura
 
+Tabla origen
 
-* crear y eliminar 
+Tabla destino 
 
-* asignar atributos 
+Acciones
 
-* agrupar con otros roles
+## pgadmin
 
-* Roles predeterminados   
+nos posicionamos en tabla trayecto damos click derecho
 
+propiedades 
 
-## desde la shell  
+constraints
 
-consultamos que podemos hacer 
-```sql
-postgres=# \h CREATE ROL
+foreign key 
 
+Name :  TablaOrigen_tablaDestinofkey
 
-```
-
-creamos rol 
-
-
-```sql
-
-postgres=# CREATE ROLE  usuario_consulta ;
-CREATE ROLE
+trayecto_estacion_fkey
 
 
-```
+damos editar
+columns 
+
+Local column  : id_estacion
+
+References  : public.stacion 
+
+referencing : id 
+
+### vamos a action 
+
+es importante porque dice que tiene que hacer
+la base de datos cuando ocurra un cambio
+
+## On update 
+
+si se actualiza el id de la estacion ....
+
+cascade . dice que si el id tabla principal se actualiza 
+
+## On delate 
+
+si se borra en la principal  el id  aqui le decimos si puede o no borrarlo aca 
+
+Cascade 
 
 
-para ver el listado de usuarios
-
-```sql
-postgres=# \dg
-
-
-  Nombre de rol   |                         Atributos
-               | Miembro de
-------------------+------------------------------------------------------------+------------
- postgres         | Superusuario, Crear rol, Crear BD, Replicaci¾n, Ignora RLS | {}
- usuario_consulta | No puede conectarse
-
-```
-
-
-## vamos a darle capacidad de acceder a la base de datos 
-
-```sql
-postgres=# ALTER ROLE  usuario_consulta WITH LOGIN;
-ALTER ROLE
-
-
-
-postgres=# \dg
-                                       Lista de roles
-  Nombre de rol   |                         Atributos
-               | Miembro de
-------------------+------------------------------------------------------------+------------
- postgres         | Superusuario, Crear rol, Crear BD, Replicaci¾n, Ignora RLS | {}
- usuario_consulta |
-               | {}
-
-```
-
-## vamos a darle estatus super usuario 
-
-```sql
-postgres=# ALTER ROLE  usuario_consulta WITH SUPERUSER;
-
-```
-
-## asignamos contraseña 
-
-
+para hacer el otro constraint 
 
 
 ```sql
-postgres=# ALTER ROLE  usuario_consulta WITH PASSWORD 'toor'; 
+
+
+ALTER TABLE IF EXISTS public.trayecto
+    ADD CONSTRAINT trayecto_tren_fkey FOREIGN KEY (id_tren)
+    REFERENCES public.tren (id) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
 
 ```
 
 
-
-vamos a borrarlo 
-
-
 ```sql
 
-postgres=# DROP ROLE  usuario_consulta ;
+ALTER TABLE IF EXISTS public.viaje
+    ADD CONSTRAINT viaje_trayecto_fkey FOREIGN KEY (id_trayecto)
+    REFERENCES public.trayecto (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
 
-```
 
-
-
-
-```sql
-
+ALTER TABLE IF EXISTS public.viaje
+    ADD CONSTRAINT viaje_pasajero_fkey FOREIGN KEY (id_pasajero)
+    REFERENCES public.pasajero (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+    NOT VALID;
 
 ```
