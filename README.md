@@ -1,86 +1,30 @@
-# Llaves foraneas
+# Inserción y consulta de datos
+## PgAdmin 
 
-##  estructura
+tabla estacion
 
-Tabla origen
-
-Tabla destino 
-
-Acciones
-
-## pgadmin
-
-nos posicionamos en tabla trayecto damos click derecho
-
-propiedades 
-
-constraints
-
-foreign key 
-
-Name :  TablaOrigen_tablaDestinofkey
-
-trayecto_estacion_fkey
-
-
-damos editar
-columns 
-
-Local column  : id_estacion
-
-References  : public.stacion 
-
-referencing : id 
-
-### vamos a action 
-
-es importante porque dice que tiene que hacer
-la base de datos cuando ocurra un cambio
-
-## On update 
-
-si se actualiza el id de la estacion ....
-
-cascade . dice que si el id tabla principal se actualiza 
-
-## On delate 
-
-si se borra en la principal  el id  aqui le decimos si puede o no borrarlo aca 
-
-Cascade 
-
-
-para hacer el otro constraint 
-
+insertar scripts  INSERT Script
 
 ```sql
 
+INSERT INTO public.estacion(
+	 nombre, direccion)
+	VALUES ( 'centro','calle 80 #12');
 
-ALTER TABLE IF EXISTS public.trayecto
-    ADD CONSTRAINT trayecto_tren_fkey FOREIGN KEY (id_tren)
-    REFERENCES public.tren (id) MATCH SIMPLE
-    ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
 
+
+ALTER TABLE public.tren
+ALTER COLUMN modelo TYPE VARCHAR(50); -- Cambia "VARCHAR(50)" según la longitud máxima que desees para el modelo.
+
+INSERT INTO public.tren(
+	 capacidad,modelo)
+	VALUES ( 100,'Modelo 1');
+
+
+  INSERT INTO public.trayecto(
+	id_estacion, id_tren, nombre)
+	VALUES (1, 1, 'Ruta 1');
+
+  
 ```
 
-
-```sql
-
-ALTER TABLE IF EXISTS public.viaje
-    ADD CONSTRAINT viaje_trayecto_fkey FOREIGN KEY (id_trayecto)
-    REFERENCES public.trayecto (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-    NOT VALID;
-
-
-ALTER TABLE IF EXISTS public.viaje
-    ADD CONSTRAINT viaje_pasajero_fkey FOREIGN KEY (id_pasajero)
-    REFERENCES public.pasajero (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE
-    NOT VALID;
-
-```
