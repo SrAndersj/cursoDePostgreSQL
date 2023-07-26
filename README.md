@@ -1,85 +1,66 @@
-# Funciones Especiales Principales
+# Funciones Especiales Avanzadas
 
-## ON CONFLICT DO
-
-tabla estacion
+## COALESCE 
 
 
-vamos a reemplazar
+```sql
+SELECT id, nombre, direccion_residencia, fecha_nacimiento
+	FROM public.pasajero WHERE id= 1;
+
+```
+
+```sql
+
+SELECT id,COALESCE (nombre,'NO APLICA '), direccion_residencia, fecha_nacimiento
+	FROM public.pasajero WHERE id= 1;
+
+```
+
+## NULLIF
+
+compara
+```sql
+SELECT NULLIF (0,0)
+
+```
+## GREATEST
+
+nos retorna el numero mayor 
+
+```sql
+
+SELECT GREATEST (1,3,5,7,9,4,3,2)
+
+```
+
+## LEAST
+
+retorna el menor 
+
+```sql
+
+SELECT LEAST (1,3,5,7,9,4,3,2)
+```
+
+## BLOQUES ANONIMOS 
+
+
+CONSULTAR SI ES NIÑO 
 
 
 ```sql
 
-INSERT INTO public.estacion(
-	id, nombre, direccion)
-	VALUES (1, 'nombre test', 'direccion test');
+SELECT id, nombre, direccion_residencia, fecha_nacimiento,
 
+CASE
 
-ERROR:  Ya existe la llave (id)=(1).llave duplicada viola restricción de unicidad «estacion_pkey» 
-
-ERROR:  llave duplicada viola restricción de unicidad «estacion_pkey»
-SQL state: 23505
-Detail: Ya existe la llave (id)=(1).
-
-    ```
-sale error porque el id 1 ya existe 
-
-
-
-
-```sql
-INSERT INTO public.estacion(
-	id, nombre, direccion)
-	VALUES (1, 'nombre test', 'direccion test')
-	ON CONFLICT(id)DO UPDATE SET nombre='nombre test',direccion='direccion test'	;
-
-
-
+WHEN fecha_nacimiento >'2015-01-01' THEN
+'Niño'
+ELSE
+'Mayor '
+END
+	FROM public.pasajero;
+    
 ```
 
-## RETURNING
-
-```sql
-
-
-INSERT INTO public.estacion(
-	 nombre, direccion)
-	VALUES ( 'RET', 'RETDRI')
-
-RETURNING * ;
-
-```
-
-
-
-## LIKE / ILIKE
-
-buscaremos un nombre donde sea parecido al siguiente formato
-
-LIKE diferencia mayusculas y minusculas ILIKE  no 
-
-```
-SELECT id, nombre
-	FROM public.pasajero
-	WHERE nombre ILIKE 'a%';
-	
--- % es uno o cualquier valor
--- _ es solo uno
-
-
-
-```
-
-
-## IS/IS NOT
-
-
-que modelo es nulo
-
-```sql 
-SELECT *
-	FROM public.tren
-	WHERE modelo IS NULL;
-
-```
 
