@@ -1,66 +1,187 @@
-# Funciones Especiales Avanzadas
+# PL/SQL
 
-## COALESCE 
+## procedimientos almacenados
 
+vamos a crear una PL 
 
-```sql
-SELECT id, nombre, direccion_residencia, fecha_nacimiento
-	FROM public.pasajero WHERE id= 1;
-
-```
-
-```sql
-
-SELECT id,COALESCE (nombre,'NO APLICA '), direccion_residencia, fecha_nacimiento
-	FROM public.pasajero WHERE id= 1;
-
-```
-
-## NULLIF
-
-compara
-```sql
-SELECT NULLIF (0,0)
-
-```
-## GREATEST
-
-nos retorna el numero mayor 
-
-```sql
-
-SELECT GREATEST (1,3,5,7,9,4,3,2)
-
-```
-
-## LEAST
-
-retorna el menor 
-
-```sql
-
-SELECT LEAST (1,3,5,7,9,4,3,2)
-```
-
-## BLOQUES ANONIMOS 
+pg admin
 
 
-CONSULTAR SI ES NIÑO 
+para que texto aparezca 
 
 
 ```sql
 
-SELECT id, nombre, direccion_residencia, fecha_nacimiento,
+DO $$
+BEGIN
+	RAISE NOTICE 'algo esta pasando ';
 
-CASE
-
-WHEN fecha_nacimiento >'2015-01-01' THEN
-'Niño'
-ELSE
-'Mayor '
 END
-	FROM public.pasajero;
-    
+
+$$
+
 ```
 
 
+llamar a los nombres de pasajeros
+
+
+```sql
+
+DO $$
+DECLARE 
+	rec record;
+	
+	contador integer :=0;
+BEGIN
+	FOR rec IN SELECT * FROM pasajero LOOP
+		RAISE NOTICE 'un pasajero se llama %', rec.nombre;
+		contador :=contador+1;
+	END LOOP;
+	
+	RAISE NOTICE 'conteo es %',contador;
+END
+
+
+$$;
+
+
+```
+
+
+
+creamos una funcion en base al codigo anterior
+ * void es para quee no retorne nada
+
+```sql
+CREATE FUNCTION importantePL()
+RETURNS void 
+AS $$
+DECLARE 
+	rec record;
+	
+	contador integer :=0;
+BEGIN
+	FOR rec IN SELECT * FROM pasajero LOOP
+		RAISE NOTICE 'un pasajero se llama %', rec.nombre;
+		contador :=contador+1;
+	END LOOP;
+	
+	RAISE NOTICE 'conteo es %',contador;
+END
+
+
+$$
+LANGUAGE PLPGSQL;
+
+
+```
+
+llamar la funcion
+
+```sql
+SELECT importantePL();
+
+```
+
+para que retorne valores del contador
+
+```sql
+
+-- Primero, elimina la función existente (¡cuidado, esto borrará la función y sus definiciones!)
+DROP FUNCTION IF EXISTS importantePL();
+
+-- Luego, crea la función con el nuevo tipo de retorno
+CREATE OR REPLACE FUNCTION importantePL()
+RETURNS integer 
+AS $$
+DECLARE 
+    rec record;
+    contador integer := 0;
+BEGIN
+    FOR rec IN SELECT * FROM pasajero LOOP
+        RAISE NOTICE 'un pasajero se llama %', rec.nombre;
+        contador := contador + 1;
+    END LOOP;
+    
+    RAISE NOTICE 'conteo es %', contador;
+    RETURN contador;
+END
+$$
+LANGUAGE PLPGSQL;
+
+
+```
+
+## VAMOS A USAR FUINCIONES CON LA  HERRAMIENTA DE PGADMIN 
+
+
+vamos a FUNCTIONS , create
+
+en definition colocamos el tipo de retorno 
+
+integer
+
+y language PLSQL
+
+
+en code pegamos
+
+
+```sql
+
+
+
+DECLARE 
+    rec record;
+    contador integer := 0;
+BEGIN
+    FOR rec IN SELECT * FROM pasajero LOOP
+        RAISE NOTICE 'un pasajero se llama %', rec.nombre;
+        contador := contador + 1;
+    END LOOP;
+    
+    RAISE NOTICE 'conteo es %', contador;
+    RETURN contador;
+END
+
+
+```
+
+
+lo que sale es
+
+
+```sql
+CREATE FUNCTION public."importantePL2"()
+    RETURNS integer
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE 
+    rec record;
+    contador integer := 0;
+BEGIN
+    FOR rec IN SELECT * FROM pasajero LOOP
+        RAISE NOTICE 'un pasajero se llama %', rec.nombre;
+        contador := contador + 1;
+    END LOOP;
+    
+    RAISE NOTICE 'conteo es %', contador;
+    RETURN contador;
+END
+$BODY$;
+
+ALTER FUNCTION public."importantePL2"()
+    OWNER TO postgres;
+
+
+
+```
+
+
+```sql
+
+SELECT public."importantePL2"()
+
+```
