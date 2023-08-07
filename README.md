@@ -1,145 +1,84 @@
-# Simulando conexion a bases de datos remotos
-##datos externos
-## dblink 
+# Transacciones 
 
-permite conectarse a servidores remotos dentro de una consulta
+## procesos complejos seguros 
 
-### creamos una base de datos para simular que es la remota 
+si la base de datos falla debe poder devolver todos
+los cambios automaticamente 
 
-create databases
+## BEGIN inicia el motor de base de datos
+## ROLBACK es que si algo fallo devuelva todos lso cambios 
 
-se llama remota 
+```sql
+BEGIN
+
+<consult>
+COMMIT|ROLLBACK 
+
+```
+
+al lado de ejecutar esta la opcion desplegable de rollback y autocommit
+
+desactivamos el auto commit 
+
 
 
 ```sql
 
--- Database: remota
+BEGIN;
+SELECT true;
 
--- DROP DATABASE IF EXISTS remota;
-
-CREATE DATABASE remota
-    WITH
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LC_COLLATE = 'Spanish_Spain.1252'
-    LC_CTYPE = 'Spanish_Spain.1252'
-    TABLESPACE = pg_default
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
 
 
 ```
 
+como lo hicimos con commit descativado se habilataron dos botones al lado de ejecutar 
+uno de commit y otro de rollback 
 
-creamos una tabla 
+es decir que todo lo que se hace esta en memoria pero no se guarda en base de datos 
+
+## supongamos que necesitamos hacer insercion en tren y estacion y que si uno falla se haga rollback 
+
 
 ```sql
 
-CREATE TABLE public.vip
-(
-    id integer,
-    fecha date
-);
-
-ALTER TABLE IF EXISTS public.vip
-    OWNER to postgres;
-
+BEGIN;
+INSERT INTO public.estacion(
+	 nombre, direccion)
+	VALUES ('estacion transaccion' ,'direccion transacion');
+	
+INSERT INTO public.tren(
+	 modelo, capacidad)
+	VALUES ('modelo transaccion', 123);
 ```
 
-hacemos un insert script  para decir que pasajero 50 es vip desde tal fecha
+se ejecuto correctamente pero si vamos a la tabla no esta la informacion porque no hemos hecho el commit 
+
+ 
+## vamos a ver un caso en el que una falla  haciendo que una insercion de estacion tenga una id que ya existe 
 
 
-
-```sql
-INSERT INTO public.vip(
-	id, fecha)
-	VALUES (50, '2010-01-01');
-
-```
-
-
-## vamos a conectarnos a remota desde la base de datos de transporte
-
-nos desconectamos de remota 
-
-
-creamos un script en tabla pasajero cual es el vip y que me traiga la informacion 
-
-### instalamos dblink 
-
-```sql
-CREATE EXTENSION dblink;
-```
-
-
-consultamos 
-
-
-```sql
-SELECT * FROM 
-dblink('dbname=remota
-	   port=5432
-	   host=127.0.0.1 
-	   user=postgres 
-	   password=etc123', 
-	   'SELECT id,fecha FROM vip')
-	   AS datos_remotos(id integer,fecha date);
-
-```
-
-
-### ahora usamos un join para cruzar con datos locales 
-
-```sql
-
-
-
--- Primero, asegúrate de tener la extensión dblink instalada:
--- CREATE EXTENSION IF NOT EXISTS dblink;
-
--- Luego, realiza la consulta utilizando dblink en la cláusula FROM:
-SELECT * 
-FROM pasajero
-JOIN
-(
-    SELECT id, fecha
-    FROM dblink('dbname=remota
-                 port=5432
-                 host=127.0.0.1 
-                 user=postgres 
-                 password=etc123', 
-                'SELECT id, fecha FROM vip'
-    ) AS datos_remotos(id integer, fecha date)
-) AS datos_remotos
-ON (pasajero.id = datos_remotos.id);
-
-```
-### es lo mismo con USING id 
 
 
 ```sql
 
+BEGIN;
+INSERT INTO public.estacion(id,
+	 nombre, direccion)
+	VALUES (105,'estacion transaccion' ,'direccion transacion');
+	
+INSERT INTO public.tren(
+	 modelo, capacidad)
+	VALUES ('modelo transaccion asdf', 123);
+	
+COMMIT;
 
 
--- Primero, asegúrate de tener la extensión dblink instalada:
--- CREATE EXTENSION IF NOT EXISTS dblink;
-
--- Luego, realiza la consulta utilizando dblink en la cláusula FROM:
-SELECT * 
-FROM pasajero
-JOIN
-(
-    SELECT id, fecha
-    FROM dblink('dbname=remota
-                 port=5432
-                 host=127.0.0.1 
-                 user=postgres 
-                 password=etc123', 
-                'SELECT id, fecha FROM vip'
-    ) AS datos_remotos(id integer, fecha date)
-) AS datos_remotos
-USING (id);
 
 
+ERROR:  Ya existe la llave (id)=(105).llave duplicada viola restricción de unicidad «estacion_pkey» 
+
+ERROR:  llave duplicada viola restricción de unicidad «estacion_pkey»
+SQL state: 23505
+Detail: Ya existe la llave (id)=(105).
 
 ```
