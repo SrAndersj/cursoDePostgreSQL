@@ -1,184 +1,144 @@
-# Triggers
+# Simulando conexion a bases de datos remotos
+##datos externos
+## dblink 
 
-permiten ejecutar funciones dependiendo de acciones que se
-ejecuten en una tabla 
+permite conectarse a servidores remotos dentro de una consulta
 
-cuando se hace Insert , Update , Delete
+### creamos una base de datos para simular que es la remota 
 
+create databases
 
+se llama remota 
 
-Vamos a guardar el contador "importantePL2"()  en una tabla adicional 
-
-
-creamos tabla conteo_pasajeros
 
 ```sql
-CREATE TABLE public.conteo_pasajeros
+
+-- Database: remota
+
+-- DROP DATABASE IF EXISTS remota;
+
+CREATE DATABASE remota
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Spanish_Spain.1252'
+    LC_CTYPE = 'Spanish_Spain.1252'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+
+```
+
+
+creamos una tabla 
+
+```sql
+
+CREATE TABLE public.vip
 (
-    total integer,
-    tiempo time with time zone,
-    id serial,
-    PRIMARY KEY (id)
+    id integer,
+    fecha date
 );
 
-ALTER TABLE IF EXISTS public.conteo_pasajeros
+ALTER TABLE IF EXISTS public.vip
     OWNER to postgres;
 
 ```
 
-ahora modificamos la pl "importantePL2"() , en la funcion damos create script
+hacemos un insert script  para decir que pasajero 50 es vip desde tal fecha
 
-agregamos las lineas 
-
-```sql
-INSERT INTO conteo_pasajeros(total,tiempo)
-	VALUES(contador,now())
-
-```
-
-y queda asi 
 
 
 ```sql
-CREATE OR REPLACE FUNCTION public."importantePL2"()
-    RETURNS integer
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-DECLARE 
-    rec record;
-    contador integer := 0;
-BEGIN
-    FOR rec IN SELECT * FROM pasajero LOOP
-        RAISE NOTICE 'un pasajero se llama %', rec.nombre;
-        contador := contador + 1;
-    END LOOP;
-    
-    RAISE NOTICE 'conteo es %', contador;
-	INSERT INTO conteo_pasajeros (total, tiempo)
-	VALUES (contador, now());
-    
-    RETURN contador;
-END
-$BODY$;
-
-ALTER FUNCTION public."importantePL2"()
-    OWNER TO postgres;
-
+INSERT INTO public.vip(
+	id, fecha)
+	VALUES (50, '2010-01-01');
 
 ```
 
 
-la ejecutamos 
+## vamos a conectarnos a remota desde la base de datos de transporte
 
+nos desconectamos de remota 
+
+
+creamos un script en tabla pasajero cual es el vip y que me traiga la informacion 
+
+### instalamos dblink 
 
 ```sql
-SELECT "importantePL2"()
-```
-
-vamos a hacer que la funcion sea de tipo trigger con
-
-```sql
-
- RETURNS integer 
- lo cambiamos a
-
- RETURNS TRIGGER
-
+CREATE EXTENSION dblink;
 ```
 
 
+consultamos 
+
+
 ```sql
-
-CREATE OR REPLACE FUNCTION public."importantePL2"(
-	)
-    RETURNS TRIGGER
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE PARALLEL UNSAFE
-AS $BODY$
-DECLARE 
-    rec record;
-    contador integer := 0;
-BEGIN
-    FOR rec IN SELECT * FROM pasajero LOOP
-        RAISE NOTICE 'un pasajero se llama %', rec.nombre;
-        contador := contador + 1;
-    END LOOP;
-    
-    RAISE NOTICE 'conteo es %', contador;
-	INSERT INTO conteo_pasajeros (total, tiempo)
-	VALUES (contador, now());
-    
-    RETURN contador;
-END
-$BODY$;
-
-ALTER FUNCTION public."importantePL2"()
-    OWNER TO postgres;
+SELECT * FROM 
+dblink('dbname=remota
+	   port=5432
+	   host=127.0.0.1 
+	   user=postgres 
+	   password=etc123', 
+	   'SELECT id,fecha FROM vip')
+	   AS datos_remotos(id integer,fecha date);
 
 ```
 
 
-conexion entre la trigger la pl y la tabla
-
-
+### ahora usamos un join para cruzar con datos locales 
 
 ```sql
-CREATE TRIGGER mi_trigger
 
-AFTER INSERT
-ON pasajero
 
-FOR EACH ROW
-EXECUTE PROCEDURE "importantePL2"();
+
+-- Primero, asegúrate de tener la extensión dblink instalada:
+-- CREATE EXTENSION IF NOT EXISTS dblink;
+
+-- Luego, realiza la consulta utilizando dblink en la cláusula FROM:
+SELECT * 
+FROM pasajero
+JOIN
+(
+    SELECT id, fecha
+    FROM dblink('dbname=remota
+                 port=5432
+                 host=127.0.0.1 
+                 user=postgres 
+                 password=etc123', 
+                'SELECT id, fecha FROM vip'
+    ) AS datos_remotos(id integer, fecha date)
+) AS datos_remotos
+ON (pasajero.id = datos_remotos.id);
 
 ```
-
-
-
-actualizamos pl
+### es lo mismo con USING id 
 
 
 ```sql
--- FUNCTION: public.importantePL2()
-
--- DROP FUNCTION IF EXISTS public."importantePL2"();
-
-CREATE OR REPLACE FUNCTION public."importantePL2"()
-    RETURNS trigger
-    LANGUAGE 'plpgsql'
-    COST 100
-    VOLATILE NOT LEAKPROOF
-AS $BODY$
-DECLARE 
-    rec record;
-    contador integer := 0;
-BEGIN
-    FOR rec IN SELECT * FROM pasajero LOOP
-        
-        contador := contador + 1;
-    END LOOP;
-    
-    RAISE NOTICE 'conteo es %', contador;
-	INSERT INTO conteo_pasajeros (total, tiempo)
-	VALUES (contador, now());
-    
-    RETURN NEW;
-END
-$BODY$;
-
-ALTER FUNCTION public."importantePL2"()
-    OWNER TO postgres;
 
 
-```
 
+-- Primero, asegúrate de tener la extensión dblink instalada:
+-- CREATE EXTENSION IF NOT EXISTS dblink;
 
-insertamos datos en la tabla
-
-```sql
+-- Luego, realiza la consulta utilizando dblink en la cláusula FROM:
+SELECT * 
+FROM pasajero
+JOIN
+(
+    SELECT id, fecha
+    FROM dblink('dbname=remota
+                 port=5432
+                 host=127.0.0.1 
+                 user=postgres 
+                 password=etc123', 
+                'SELECT id, fecha FROM vip'
+    ) AS datos_remotos(id integer, fecha date)
+) AS datos_remotos
+USING (id);
 
 
 
