@@ -1,38 +1,37 @@
-# Backups y Restauración
+# Mantenimiento
 
-## pg_dump   
-es una copia de seguridad 
+postgres hace mantenimiento o limpieza 
 
-## Pg_restore 
-restaurar 
+hace dos niveles de limpieza 
 
+quita todas las filas columnas etc que no se usan 
 
+el modo liviano esta todo el tiempo
 
-vamos a la base de datos , click derecho /Backup 
+full es capas de bloquear las tablas para hacer la limpieza 
 
-hay cuatro formatos 
-
-## custom 
-formato unico para postrges pgadmin
-
-## Tar
-archivo comprimido que contiene la base de datos 
-
-## Plain
-
-es sql plano 
-
-## Directory 
-
-estructura sin comprimir 
+## vamos a hacer y revisar el mantenimiento en pgadmin 
 
 
-usaremos custom 
+click derecho opcion maintenance
+4 opciones
+## vacuum
+se refiere a vaciar
 
-## compresion ratio 
-es el numero de veces que se ejecuta el ciclo de compresion 
+full significa que la tabla estara limpia en su totalidad 
+freeze durante ese proceso se va a congelar la tabla o base de datos
 
-## encoding pues el utf8 que esta predeterminado
+analyze es la mas suave , ejecuta una revision pero no hace cambios 
 
-## role name 
-es quien va a ser el dueño 
+## ANALYZE
+
+no hace ningun cambio , solo hace la revicion 
+
+## REINDEX 
+
+aplica para tablas que tienen indices como llaves primarias
+
+es importante cuando hay indices que son mas grandes que las tablas 
+
+## cluster 
+es decirle al motor que reorganice  el disco duro 
