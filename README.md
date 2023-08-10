@@ -1,36 +1,39 @@
-# Otras Extensiones para Postgres
+# Backups y Restauración
 
-https://www.postgresql.org/docs/11/contrib.html 
+## pg_dump   
+es una copia de seguridad 
 
-
-abrimos editor y hacemos la consulta que nos permite comparar dos palabras pronunciacion 
-
-```sql
-
-CREATE EXTENSION fuzzystrmatch;
-
-SELECT levenshtein('oswaldo','osvaldo')
-
-1
-
-```
-el numero que sale es la cantidad de letras que hay que cambiar para que las palabras sean iguales 
+## Pg_restore 
+restaurar 
 
 
 
-# vamos a usar difference, nos dice de cero a 4 que tan diferentes son 
+vamos a la base de datos , click derecho /Backup 
+
+hay cuatro formatos 
+
+## custom 
+formato unico para postrges pgadmin
+
+## Tar
+archivo comprimido que contiene la base de datos 
+
+## Plain
+
+es sql plano 
+
+## Directory 
+
+estructura sin comprimir 
 
 
-```sql
-SELECT difference('oswaldo','osvaldo');
+usaremos custom 
 
-2
+## compresion ratio 
+es el numero de veces que se ejecuta el ciclo de compresion 
 
+## encoding pues el utf8 que esta predeterminado
 
-SELECT difference('beard','bird');
-
-4
-```
-
-si es 4 es que la pronunciacion es practicamente lo mismo 
+## role name 
+es quien va a ser el dueño 
 
