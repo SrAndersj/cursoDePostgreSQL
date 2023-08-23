@@ -1,11 +1,9 @@
-# Introducción a Réplicas
+# Implementación de Réplicas en Postgres
 
-son mecanismos que nos permite evitar problemas de entrada
-o salida 
+vamos a usar jelastic para  crear dos servidores
 
-o procesos de lectura y escritura 
+uno maestro y otro esclavo 
 
+https://app.cloudjiffy.co/
 
-la estrategia es tener una base de datos principal donde se hacen todas las modificaciones y una secundaria donde solo se hacen las lecturas 
-
-
+https://jelastic.com/
